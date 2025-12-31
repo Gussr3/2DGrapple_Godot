@@ -2,6 +2,9 @@ extends CharacterBody2D
 
 @onready var grapple_cast: RayCast2D = $GrappleCast
 
+var states = ["WALKING", "JUMPING", "IDLE"]
+var State = states[0]
+
 var grappling = false
 var grapple_point : Vector2
 var get_grapple_point : bool = false
@@ -19,26 +22,39 @@ func _physics_process(delta: float) -> void:
 	# Handle jump.
 	if Input.is_action_just_pressed("Jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
+		
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var direction := Input.get_axis("Left", "Right")
 	if direction:
 		velocity.x = direction * SPEED
+		if is_on_floor():
+			State = states[0] #set state to walking
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
+		State = states[2] #set state to IDLE--------------------
+		
 
 	move_and_slide()
+	
+	if velocity.x < 0:
+		$CharacterSprite.flip_h = true
+	elif velocity.x > 0:
+		$CharacterSprite.flip_h = false
+	
 	
 func _process(delta: float) -> void:
 	grapple_cast.look_at(get_global_mouse_position())
 	grapple()
+	print(State)
 	
 func grapple():
 	if Input.is_action_just_pressed("Grapple"):
 		if grapple_cast.is_colliding():
-			if !grappling:
-				grappling = true
+			if is_on_floor():
+				if !grappling:
+					grappling = true
 	if grappling == true:
 		gravity = Vector2.ZERO
 		if get_grapple_point == false:
@@ -47,12 +63,28 @@ func grapple():
 			
 		if grapple_point.distance_to(self.position) > 12:
 			if get_grapple_point == true:
+				$PlayerAnimations.play("grapple")
+				await get_tree().create_timer(0.3).timeout
 				self.position = lerp(self.position, grapple_point, 0.2)
+				
 		else:
 			gravity = Vector2(0, 980)
 			get_grapple_point = false
 			grappling = false
 			
-	print(grapple_point.distance_to(self.position))
+		move_and_slide()
+		
+		
+#-------state behaviour-----------------------
+	if State == states[0]:
+		$PlayerAnimations.play("walk_anim")
+	elif State == states[1]:
+		$PlayerAnimations.play("jumping")
+	if !is_on_floor():
+		State = states[1]
+	if State == states[2]:
+		$PlayerAnimations.play("idle")
+		
+	
 			
 			
