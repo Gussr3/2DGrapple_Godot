@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8tjbrpjtkek1"]
+
+[ext_resource type="Script" uid="uid://868odhp8duru" path="res://Scripts/character_body_2d.gd" id="1_kyqiw"]
+[ext_resource type="Texture2D" uid="uid://cbuq2vph3h4ds" path="res://CharacterSpritesheet.png" id="2_kyqiw"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dewec"]
+radius = 2.0
+height = 6.0
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_kyqiw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_dewec")
+
+[node name="CharacterSprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_kyqiw")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(20, -9)
+zoom = Vector2(6, 6)
+position_smoothing_enabled = true
+position_smoothing_speed = 2.0
+
+[node name="GrappleCast" type="RayCast2D" parent="."]
+target_position = Vector2(80, 0)
