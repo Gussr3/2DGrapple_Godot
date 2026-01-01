@@ -1,28 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://c8tjbrpjtkek1"]
 
-[ext_resource type="Script" uid="uid://868odhp8duru" path="res://Scripts/character_body_2d.gd" id="1_kyqiw"]
+[ext_resource type="Script" uid="uid://868odhp8duru" path="res://Scripts/player.gd" id="1_kyqiw"]
 [ext_resource type="Texture2D" uid="uid://clfx653j1bf4k" path="res://Sprites/CharacterSpritesheet.png" id="2_kyqiw"]
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dewec"]
-radius = 2.0
-height = 6.0
-
-[sub_resource type="Animation" id="Animation_kyqiw"]
-resource_name = "walk_anim"
-length = 0.4
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("CharacterSprite:frame")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.233333, 0.333333),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [0, 1, 2, 3]
-}
 
 [sub_resource type="Animation" id="Animation_gntrk"]
 length = 0.001
@@ -51,10 +30,9 @@ tracks/1/keys = {
 "values": [Vector2(0, 0)]
 }
 
-[sub_resource type="Animation" id="Animation_dewec"]
-resource_name = "jumping"
-length = 0.3
-loop_mode = 1
+[sub_resource type="Animation" id="Animation_nn08x"]
+resource_name = "grapple"
+length = 0.5
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -62,10 +40,10 @@ tracks/0/path = NodePath("CharacterSprite:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.233333),
-"transitions": PackedFloat32Array(1, 1, 1),
+"times": PackedFloat32Array(0, 0.0666667, 0.133333, 0.266667),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [4, 5, 6]
+"values": [6, 7, 8, 9]
 }
 
 [sub_resource type="Animation" id="Animation_5ixxa"]
@@ -97,9 +75,10 @@ tracks/1/keys = {
 "values": [0]
 }
 
-[sub_resource type="Animation" id="Animation_nn08x"]
-resource_name = "grapple"
-length = 0.5
+[sub_resource type="Animation" id="Animation_dewec"]
+resource_name = "jumping"
+length = 0.3
+loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -107,10 +86,27 @@ tracks/0/path = NodePath("CharacterSprite:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.0666667, 0.133333, 0.266667),
+"times": PackedFloat32Array(0, 0.1, 0.233333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [4, 5, 6]
+}
+
+[sub_resource type="Animation" id="Animation_kyqiw"]
+resource_name = "walk_anim"
+length = 0.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CharacterSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.233333, 0.333333),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [6, 7, 8, 9]
+"values": [0, 1, 2, 3]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_dewec"]
@@ -122,11 +118,12 @@ _data = {
 &"walk_anim": SubResource("Animation_kyqiw")
 }
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dewec"]
+radius = 2.0
+height = 6.0
+
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_kyqiw")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CapsuleShape2D_dewec")
 
 [node name="CharacterSprite" type="Sprite2D" parent="."]
 texture = ExtResource("2_kyqiw")
@@ -145,3 +142,21 @@ target_position = Vector2(80, 0)
 libraries = {
 &"": SubResource("AnimationLibrary_dewec")
 }
+
+[node name="JumpCast" type="RayCast2D" parent="."]
+target_position = Vector2(0, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_dewec")
+
+[node name="LeftRay" type="RayCast2D" parent="."]
+modulate = Color(0.890196, 0, 1, 1)
+position = Vector2(-1, 0)
+rotation = 1.57079
+target_position = Vector2(0, 10)
+
+[node name="RightRay" type="RayCast2D" parent="."]
+modulate = Color(0.890196, 0, 1, 1)
+position = Vector2(1, 0)
+rotation = -1.57079
+target_position = Vector2(0, 10)
