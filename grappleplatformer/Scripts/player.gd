@@ -2,7 +2,6 @@ extends CharacterBody2D
 
 @onready var grapple_cast: RayCast2D = $GrappleCast
 @onready var jump_particle = preload("res://Scenes/jump_particle.tscn")
-@onready var sliding_rays = []
 
 var states = ["WALKING", "JUMPING", "IDLE", "WALLSLIDING"]
 var State = states[0]
@@ -14,11 +13,6 @@ var get_grapple_point : bool = false
 const SPEED = 150.0
 const JUMP_VELOCITY = -200.0
 var gravity = Vector2(0, 980)
-
-
-func _ready() -> void:
-	sliding_rays.append($LeftRay)
-	sliding_rays.append($RightRay)
 
 
 func _physics_process(delta: float) -> void:
@@ -54,8 +48,8 @@ func _process(delta: float) -> void:
 	grapple()
 	jumpEffect(self.global_position)
 	wall_slide()
-	print(State)
-
+	
+	
 	
 func grapple():
 	if Input.is_action_just_pressed("Grapple"):
@@ -104,8 +98,20 @@ func jumpEffect(pos : Vector2):
 		get_parent().add_child(jump_particle_instance)
 		
 func wall_slide():
-	for ray in sliding_rays:
-		if ray.is_colliding():
-			State = states[3] #set state to WALLSLIDING
-			var sliding_ray_index =  sliding_rays.find(ray)
-			
+	if $LeftRay.is_colliding():
+		State = states[3]
+		
+	elif !$LeftRay.is_colliding():
+		State = states[2]
+		gravity = Vector2(0, 980)
+	if $RightRay.is_colliding():
+		State = states[3]
+		
+	elif !$RightRay.is_colliding():
+		State = states[2]
+		gravity = Vector2(0, 980)
+	
+	if State == states[3] and !is_on_floor():
+		gravity = Vector2(0, 5)
+		grappling = false
+	
