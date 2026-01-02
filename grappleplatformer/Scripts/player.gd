@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 @onready var grapple_cast: RayCast2D = $GrappleCast
 @onready var jump_particle = preload("res://Scenes/jump_particle.tscn")
+@onready var sliding_rays = []
 
 var states = ["WALKING", "JUMPING", "IDLE", "WALLSLIDING"]
 var State = states[0]
@@ -13,6 +14,11 @@ var get_grapple_point : bool = false
 const SPEED = 150.0
 const JUMP_VELOCITY = -200.0
 var gravity = Vector2(0, 980)
+
+
+func _ready() -> void:
+	sliding_rays.append($LeftRay)
+	sliding_rays.append($RightRay)
 
 
 func _physics_process(delta: float) -> void:
@@ -51,6 +57,9 @@ func _process(delta: float) -> void:
 	
 	
 	
+	
+
+	
 func grapple():
 	if Input.is_action_just_pressed("Grapple"):
 		if grapple_cast.is_colliding():
@@ -82,12 +91,15 @@ func grapple():
 		$PlayerAnimations.play("walk_anim")
 	elif State == states[1]:
 		$PlayerAnimations.play("jumping")
-	if !is_on_floor():
+	if !is_on_floor() and velocity.y < 0:
 		State = states[1]
 	if State == states[2]:
-		gravity = Vector2(0, 980)
 		$PlayerAnimations.play("idle")
-		
+	if State == states[3]:
+		Engine.time_scale = 0.3
+		$PlayerAnimations.play("wall_sliding")
+	else:
+		Engine.time_scale = 1
 func jumpEffect(pos : Vector2):
 	var jumpPos
 	if Input.is_action_just_pressed("Jump") and $JumpCast.is_colliding():
@@ -98,20 +110,21 @@ func jumpEffect(pos : Vector2):
 		get_parent().add_child(jump_particle_instance)
 		
 func wall_slide():
-	if $LeftRay.is_colliding():
-		State = states[3]
-		
-	elif !$LeftRay.is_colliding():
-		State = states[2]
-		gravity = Vector2(0, 980)
-	if $RightRay.is_colliding():
-		State = states[3]
-		
-	elif !$RightRay.is_colliding():
-		State = states[2]
-		gravity = Vector2(0, 980)
-	
-	if State == states[3] and !is_on_floor():
-		gravity = Vector2(0, 5)
-		grappling = false
-	
+	for ray in sliding_rays:
+		if ray.is_colliding():
+			#set state to WALLSLIDING
+			var sliding_ray_index =  sliding_rays.find(ray)
+			print(sliding_ray_index)
+			if sliding_ray_index == 0:
+				$CharacterSprite.flip_h = true
+				if not is_on_floor() and velocity.y > 0:
+					State = states[3]
+				else:
+					State = states[1]
+			if sliding_ray_index == 1:
+				$CharacterSprite.flip_h = false
+				if not is_on_floor() and velocity.y > 0:
+					State = states[3]
+				else:
+					State = states[1]
+			
